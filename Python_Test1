@@ -1,0 +1,726 @@
+import os
+import sys
+import textwrap
+
+# ============================================================
+#                    PYTHON TUTORIAL
+# ============================================================
+
+LINE = "=" * 45
+
+
+class Colors:
+    """ANSI terminal colors. They turn off when output is not a terminal."""
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    CYAN = "\033[96m"
+    BLUE = "\033[94m"
+    MAGENTA = "\033[95m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    WHITE = "\033[97m"
+
+
+# Keep output readable in terminals; avoid color codes in redirected output.
+USE_COLOR = sys.stdout.isatty() and "NO_COLOR" not in os.environ
+
+
+def color_text(text, color):
+    if USE_COLOR:
+        return f"{color}{text}{Colors.RESET}"
+    return str(text)
+
+
+def show_panel(title, message, color=Colors.CYAN):
+    """Display a simple colored box around a title and message."""
+    border = "+" + "-" * 45 + "+"
+
+    print(color_text(border, color))
+    print(color_text("| " + title.center(43) + " |", color))
+    print(color_text(border, color))
+    print(message)
+    print(color_text(border, color))
+
+
+def lesson_open(title, goal):
+    show_title(title)
+    show_panel("TODAY'S LEARNING GOAL", goal, Colors.BLUE)
+    print(color_text("\nLESSON TIME!", Colors.YELLOW))
+    print("  STEP 1: Read the explanation.")
+    print("  STEP 2: Study the code example.")
+    print("  STEP 3: Try the activity.")
+    print("  STEP 4: Answer the quick knowledge check.")
+
+
+def knowledge_check(question, options, correct, explanation):
+    """A short multiple-choice check after a lesson."""
+    print()
+    show_panel("QUICK KNOWLEDGE CHECK", question, Colors.MAGENTA)
+    for number, option in enumerate(options, start=1):
+        print(color_text(f"  {number}. ", Colors.YELLOW) + option)
+
+    answer = get_number("Your answer (1-3): ", 1, 3)
+    if answer == correct:
+        print(color_text("\n✓ CORRECT! Great job!", Colors.GREEN))
+    else:
+        print(color_text(f"\nNot quite. The correct answer is {correct}.", Colors.YELLOW))
+
+    print(color_text("WHY? ", Colors.CYAN) + explanation)
+
+
+def pause():
+    """Wait until the user is ready to continue."""
+    input("\nPress Enter to continue...")
+
+
+def ask_yes_no(question):
+    """Ask a question until the user enters Y or N."""
+    while True:
+        answer = input(question).strip().lower()
+
+        if answer in ("y", "yes"):
+            return True
+        if answer in ("n", "no"):
+            return False
+
+        print(color_text("Please enter Y or N.", Colors.RED))
+
+
+def get_number(prompt, minimum=None, maximum=None):
+    """Get a whole number and keep asking if the input is invalid."""
+    while True:
+        try:
+            number = int(input(prompt))
+
+            if minimum is not None and number < minimum:
+                print(color_text(f"Please enter a number that is at least {minimum}.", Colors.YELLOW))
+                continue
+
+            if maximum is not None and number > maximum:
+                print(color_text(f"Please enter a number no greater than {maximum}.", Colors.YELLOW))
+                continue
+
+            return number
+
+        except ValueError:
+            print(color_text("Invalid input. Please enter a whole number.", Colors.RED))
+
+
+def show_title(title):
+    print()
+    print(color_text(LINE, Colors.CYAN))
+    print(color_text(title.center(45), Colors.BOLD + Colors.MAGENTA))
+    print(color_text(LINE, Colors.CYAN))
+
+
+def lesson_1():
+    lesson_open("1 - INTRODUCTION TO PROGRAMMING", "Understand what programming is, what a programming language does, and why Python is useful.")
+    print("""
+PROGRAMMING LANGUAGE
+A programming language is a language used to give
+instructions to a computer so it can perform tasks.
+
+Python is a widely used programming language created
+by Guido van Rossum. It was first released in 1991.
+
+WHY LEARN PYTHON?
+1. Simple and beginner-friendly.
+2. Readable syntax that looks similar to English.
+3. Used in websites, automation, games, AI, and more.
+4. Has a large community and many learning resources.
+""")
+    knowledge_check(
+        "What is a programming language used for?",
+        ["To give instructions to a computer", "To decorate a computer", "To charge a computer"],
+        1,
+        "A programming language lets people write instructions that a computer can follow."
+    )
+
+
+
+def lesson_2():
+    lesson_open("2 - BASIC SYNTAX", "Recognize Python syntax rules, especially capitalization and indentation.")
+    print("""
+PYTHON SYNTAX
+Syntax means the rules for writing code correctly.
+
+1. PYTHON IS CASE-SENSITIVE
+Uppercase and lowercase letters are different.
+
+Correct:
+    name = "John"
+    print(name)
+
+Incorrect:
+    name = "John"
+    print(Name)
+
+2. INDENTATION
+Indentation means the spaces at the beginning of a line.
+Python uses indentation to identify blocks of code.
+
+Correct:
+    age = 18
+    if age >= 18:
+        print("Adult")
+
+Incorrect:
+    age = 18
+    if age >= 18:
+    print("Adult")
+""")
+    knowledge_check(
+        "What does Python use to group lines of code?",
+        ["Quotation marks", "Indentation", "Commas"],
+        2,
+        "Indentation is the space at the beginning of a line that shows which code belongs together."
+    )
+
+
+
+def lesson_3():
+    lesson_open("3 - PRINTING OUTPUT", "Learn how print() displays text, numbers, and simple calculations on the screen.")
+    print("""
+THE print() FUNCTION
+The print() function displays information on the screen.
+
+Syntax:
+    print(value)
+
+Examples:
+    print("Hello, World!")
+    print(25)
+    print(10 + 5)
+
+Text needs quotation marks. Numbers do not.
+
+PRACTICE
+Type a simple print() statement, for example:
+    print("Hello, World!")
+
+For this activity, the tutorial accepts print() statements
+containing simple text or number values only.
+It does not run other Python commands.
+""")
+
+    while True:
+        if not ask_yes_no("Would you like to try it? (Y/N): "):
+            break
+
+        code_text = input(
+            '\nType your print() code (or E to leave): '
+        ).strip()
+
+        if code_text.lower() == "e":
+            break
+
+        # This activity accepts simple print() statements only.
+        if not code_text.startswith("print(") or not code_text.endswith(")"):
+            print("Please type a print() statement.")
+            continue
+
+        value = code_text[6:-1].strip()
+
+        # If the value has quotation marks, display it as text.
+        if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+            output = value[1:-1]
+        else:
+            # Otherwise, check whether the value is a whole or decimal number.
+            try:
+                output = float(value) if "." in value else int(value)
+            except ValueError:
+                print("That example is not supported.")
+                print('Try something like: print("Hello, World!") or print(25)')
+                continue
+
+        print("\n" + "-" * 10)
+        print(color_text("OUTPUT:", Colors.GREEN))
+        print(output)
+        print("-" * 10)
+
+
+    knowledge_check(
+        "Which is the correct way to print text in Python?",
+        ['print("Hello!")', "print(Hello!)", 'Print("Hello!")'],
+        1,
+        "The function name is lowercase print, and text needs quotation marks."
+    )
+
+
+def lesson_4():
+    lesson_open("4 - PYTHON COMMENTS", "Understand how comments help explain code and why Python ignores them.")
+    print("""
+PYTHON COMMENTS
+Comments are notes in your code. Python ignores them
+when the program runs.
+
+A comment begins with the # symbol.
+
+Example:
+    # This is a comment
+    print("Hello!")
+
+Comments help explain what your code does and make
+programs easier for people to understand.
+""")
+    knowledge_check(
+        "What symbol starts a single-line Python comment?",
+        ["#", "//", "$"],
+        1,
+        "The # symbol marks a comment. Python ignores that comment when running the program."
+    )
+
+
+
+def lesson_5():
+    lesson_open("5 - VARIABLES", "Learn how variables store information and how to choose valid variable names.")
+    print("""
+WHAT IS A VARIABLE?
+A variable is a name used to store information in Python.
+
+Example:
+    name = "Gian"
+    age = 18
+
+VARIABLE NAMING RULES
+1. A name must start with a letter or underscore.
+2. A name cannot start with a number.
+3. Names are case-sensitive. age and AGE are different.
+4. Use clear names that describe the stored information.
+""")
+    knowledge_check(
+        "Which statement about variable names is correct?",
+        ["A variable name can start with a number", "age and AGE are always the same", "A variable name can start with a letter or underscore"],
+        3,
+        "A variable name must begin with a letter or underscore, and names are case-sensitive."
+    )
+
+
+
+def lesson_6():
+    lesson_open("6 - BASIC DATA TYPES", "Identify the four beginner data types: String, Integer, Float, and Boolean.")
+    print("""
+Data types describe what kind of value a variable stores.
+
+1 - String
+2 - Integer
+3 - Float
+4 - Boolean
+0 - Back to main menu
+""")
+
+    data_types = {
+        1: (
+            "STRING",
+            "A String stores text, such as words, sentences, "
+            "letters, and symbols. Strings are written inside "
+            "single or double quotation marks.",
+            'name = "Gian"\ngreeting = "Hello, World!"'
+        ),
+        2: (
+            "INTEGER",
+            "An Integer stores whole numbers without decimal "
+            "points. It can be positive, negative, or zero.",
+            "age = 18\nscore = -80"
+        ),
+        3: (
+            "FLOAT",
+            "A Float stores numbers that contain decimal points. "
+            "It is useful for measurements, prices, and calculations.",
+            "price = 999.99\ndistance = 2.5"
+        ),
+        4: (
+            "BOOLEAN",
+            "A Boolean stores one of two values: True or False. "
+            "It is often used when a program makes decisions.",
+            "is_student = True\nis_finished = False"
+        )
+    }
+
+    while True:
+        data = get_number("\nChoose a data type: ", 0, 4)
+
+        if data == 0:
+            break
+
+        title, description, example = data_types[data]
+        show_title(title)
+        print(textwrap_text(description))
+        print("\nExample:")
+        print(example)
+
+
+    knowledge_check(
+        "Which data type stores a value such as 3.14?",
+        ["String", "Float", "Boolean"],
+        2,
+        "A float stores a number that contains a decimal point."
+    )
+
+
+def textwrap_text(text):
+    """Wrap long descriptions so they are easier to read."""
+    return textwrap.fill(text, width=65)
+
+
+def lesson_7():
+    lesson_open("7 - ARITHMETIC OPERATORS", "Use Python arithmetic operators to perform calculations and understand their results.")
+    print("""
+Arithmetic operators perform mathematical calculations.
+
++   Addition
+-   Subtraction
+*   Multiplication
+/   Division
+//  Floor division
+%   Modulus (remainder)
+**  Exponentiation (power)
+
+An expression combines values and operators.
+
+Example:
+    first = 11
+    second = 13
+    result = first + second
+    print(result)
+
+Output:
+    24
+
+Python follows PEMDAS:
+Parentheses, Exponents, Multiplication/Division,
+and Addition/Subtraction.
+""")
+
+    while ask_yes_no("\nWould you like to try a calculation? (Y/N): "):
+        try:
+            first = float(input("Enter the first number: "))
+            symbol = input("Choose an operator (+, -, *, /, //, %, **): ").strip()
+            second = float(input("Enter the second number: "))
+
+            if symbol == "+":
+                result = first + second
+            elif symbol == "-":
+                result = first - second
+            elif symbol == "*":
+                result = first * second
+            elif symbol == "/":
+                if second == 0:
+                    print("You cannot divide by zero.")
+                    continue
+                result = first / second
+            elif symbol == "//":
+                if second == 0:
+                    print("You cannot divide by zero.")
+                    continue
+                result = first // second
+            elif symbol == "%":
+                if second == 0:
+                    print("You cannot divide by zero.")
+                    continue
+                result = first % second
+            elif symbol == "**":
+                result = first ** second
+            else:
+                print("That operator is not on the list.")
+                continue
+
+            print("\nResult:", result)
+
+        except ValueError:
+            print("Please enter valid numbers.")
+
+
+    knowledge_check(
+        "Which operator finds the remainder after division?",
+        ["%", "**", "//"],
+        1,
+        "The modulus operator (%) gives the remainder."
+    )
+
+
+def lesson_8():
+    lesson_open("8 - BASIC INPUT AND OUTPUT", "Collect information from users with input() and convert values when needed.")
+    print("""
+ACCEPTING USER INPUT
+The input() function lets a user type information.
+
+Syntax:
+    variable = input("Prompt message: ")
+
+Input is stored as a string by default.
+
+Example:
+    name = input("Enter your name: ")
+    print("Hello", name)
+
+CONVERTING INPUT
+Use int() for whole numbers:
+    age = int(input("Enter your age: "))
+
+Use float() for decimal numbers:
+    grade = float(input("Enter your grade: "))
+
+A Boolean can be created from a condition:
+    answer = input("Are you a student? (yes/no): ")
+    is_student = answer.lower() == "yes"
+""")
+
+    if ask_yes_no("\nWould you like to try it? (Y/N): "):
+        name = input("Enter your name: ").strip()
+
+        while True:
+            try:
+                age = int(input("Enter your age: "))
+                break
+            except ValueError:
+                print("Please enter your age using a whole number.")
+
+        print("\nOUTPUT")
+        print("Name:", name)
+        print("Age:", age)
+        print("Great job completing the activity!")
+
+
+    knowledge_check(
+        "What type does input() return by default?",
+        ["Integer", "String", "Boolean"],
+        2,
+        "input() returns text (a string), so convert it with int() or float() when needed."
+    )
+
+
+def lesson_9():
+    lesson_open("9 - CONDITIONAL STATEMENTS", "Use if, elif, and else to make a program choose what to do.")
+    print("""
+Conditional statements allow a program to make decisions
+based on whether a condition is True or False.
+
+IF:
+Runs code when a condition is True.
+
+ELIF:
+Checks another condition if the earlier condition was False.
+
+ELSE:
+Runs when all previous conditions were False.
+
+Example:
+    age = 18
+
+    if age >= 18:
+        print("Adult")
+    elif age >= 13:
+        print("Teenager")
+    else:
+        print("Minor")
+""")
+
+    if ask_yes_no("\nWould you like to try it? (Y/N): "):
+        age = get_number("Enter an age: ", 0)
+
+        if age >= 18:
+            print("You are an adult.")
+        elif age >= 13:
+            print("You are a teenager.")
+        else:
+            print("You are a minor.")
+
+        print("\nYou just used an if-elif-else statement!")
+
+
+    knowledge_check(
+        "Which block runs when the if and elif conditions are all False?",
+        ["else", "input", "for"],
+        1,
+        "The else block runs when none of the earlier conditions are True."
+    )
+
+
+def lesson_10():
+    lesson_open("10 - LOGICAL OPERATORS", "Combine conditions using and, or, and not.")
+    print("""
+Logical operators combine or reverse conditions.
+
+AND - True only when BOTH conditions are True.
+OR  - True when AT LEAST ONE condition is True.
+NOT - Reverses True to False, or False to True.
+
+Example:
+    age = 18
+    has_id = True
+
+    if age >= 18 and has_id:
+        print("Both conditions are True.")
+
+Remember:
+AND = both
+OR  = at least one
+NOT = opposite
+""")
+
+    if ask_yes_no("\nWould you like to try it? (Y/N): "):
+        age = get_number("Enter your age: ", 0)
+        has_id = ask_yes_no("Do you have an ID? (Y/N): ")
+
+        if age >= 18 and has_id:
+            print("Both conditions are True.")
+        elif age >= 18 or has_id:
+            print("At least one condition is True.")
+        else:
+            print("Both conditions are False.")
+
+        print("Activity completed!")
+
+
+    knowledge_check(
+        "When does the and operator return True?",
+        ["When both conditions are True", "When one condition is True", "When both are False"],
+        1,
+        "and requires both conditions to be True."
+    )
+
+
+def lesson_11():
+    lesson_open("11 - INTRODUCTION TO ITERATIONS AND LOOPS", "Understand when to use for loops and while loops to repeat instructions.")
+    print("""
+Iteration means repeating a process.
+A loop repeats a set of instructions.
+
+FOR LOOP:
+Repeats code for a specific sequence or number of times.
+
+Example:
+    for number in range(4):
+        print("I love fries")
+
+WHILE LOOP:
+Repeats code as long as a condition remains True.
+
+Example:
+    count = 1
+    while count <= 4:
+        print(count)
+        count += 1
+""")
+
+    while True:
+        print("\nChoose an activity:")
+        print("F - FOR loop")
+        print("W - WHILE loop")
+        print("N - Back to main menu")
+
+        pick = input("Your choice: ").strip().lower()
+
+        if pick == "f":
+            times = get_number("How many times should it repeat (1-20)? ", 1, 20)
+            word = input("What message should be repeated? ")
+
+            print("\nRESULT OF FOR LOOP")
+            for _ in range(times):
+                print(word)
+
+        elif pick == "w":
+            times = get_number("Count up to which number (1-20)? ", 1, 20)
+
+            count = 1
+            print("\nRESULT OF WHILE LOOP")
+            while count <= times:
+                print("Count:", count)
+                count += 1
+
+        elif pick == "n":
+            break
+
+        else:
+            print("Please enter F, W, or N.")
+
+
+    knowledge_check(
+        "Which loop is commonly used when you know how many times to repeat?",
+        ["while", "for", "if"],
+        2,
+        "A for loop is commonly used to repeat instructions for a known sequence or range."
+    )
+
+
+LESSONS = {
+    1: lesson_1,
+    2: lesson_2,
+    3: lesson_3,
+    4: lesson_4,
+    5: lesson_5,
+    6: lesson_6,
+    7: lesson_7,
+    8: lesson_8,
+    9: lesson_9,
+    10: lesson_10,
+    11: lesson_11
+}
+
+
+def show_menu():
+    print()
+    print(color_text(LINE, Colors.CYAN))
+    print(color_text("PYTHON TUTORIAL".center(45), Colors.BOLD + Colors.MAGENTA))
+    print(color_text(LINE, Colors.CYAN))
+    print(color_text("\nChoose a lesson and learn step by step!\n", Colors.YELLOW))
+
+    print(color_text("PRELIM LESSONS".center(45, "#"), Colors.BLUE))
+    print("1  - Introduction to Programming")
+    print("2  - Basic Syntax")
+    print("3  - Printing Output")
+    print("4  - Python Comments")
+    print("5  - Variables")
+    print("6  - Basic Data Types")
+    print("7  - Arithmetic Operators and Expressions")
+    print("8  - Basic Input and Output")
+
+    print("\n" + color_text("MIDTERM LESSONS".center(45, "#"), Colors.BLUE))
+    print("9  - Conditional Statements")
+    print("10 - Logical Operators")
+
+    print("\n" + color_text("FINAL LESSONS".center(45, "#"), Colors.BLUE))
+    print("11 - Introduction to Iterations and Loops")
+
+    print(color_text("\n0  - Exit program", Colors.RED))
+    print(color_text(LINE, Colors.CYAN))
+
+
+def main():
+    print(color_text(LINE, Colors.CYAN))
+    print(color_text("WELCOME TO PYTHON TUTORIAL".center(45), Colors.BOLD + Colors.MAGENTA))
+    print(color_text(LINE, Colors.CYAN))
+    show_panel("YOUR LEARNING JOURNEY", "Welcome! This program will teach you Python through short explanations, examples, hands-on activities, and quick knowledge checks.", Colors.BLUE)
+
+    name = input("Enter your name: ").strip()
+
+    if not name:
+        name = "Learner"
+
+    print(f"\nHello, {name}!")
+
+    if not ask_yes_no("Would you like to start your tutorial? (Y/N): "):
+        print(color_text("Thank you for visiting the Python Tutorial!", Colors.GREEN))
+        return
+
+    while True:
+        show_menu()
+        choice = get_number("Pick a lesson number: ", 0, 11)
+
+        if choice == 0:
+            print("\nTHANK YOU FOR USING PYTHON TUTORIAL!")
+            print(color_text("Hope you learned something new!", Colors.YELLOW))
+            break
+
+        LESSONS[choice]()
+
+        if not ask_yes_no("\nWould you like to return to the main menu? (Y/N): "):
+            print("\nTHANK YOU FOR USING PYTHON TUTORIAL!")
+            print(color_text("Hope you learned something new!", Colors.YELLOW))
+            break
+
+
+if __name__ == "__main__":
+    main()
